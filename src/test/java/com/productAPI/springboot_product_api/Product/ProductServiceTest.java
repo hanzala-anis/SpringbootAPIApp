@@ -43,7 +43,7 @@ class ProductServiceTest {
 
         Product newCreatedProduct =  productService.createProduct(product);
         newCreatedProduct.setName("Hanzala's Product Updated");
-        newCreatedProduct.setPrice(80.38);
+        newCreatedProduct.setPrice(80.28);
 
         try {
             Product updatedProduct = productService.updateProduct(newCreatedProduct);
