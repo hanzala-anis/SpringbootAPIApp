@@ -4,6 +4,10 @@ import com.productAPI.springboot_product_api.Product.Constants;
 import com.productAPI.springboot_product_api.Product.dto.ProductDTO;
 import com.productAPI.springboot_product_api.Product.exceptions.ProductNotFoundException;
 import com.productAPI.springboot_product_api.Product.service.ProductService;
+import jakarta.validation.Valid;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,24 +20,21 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/products")
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ProductController {
 
-    @Autowired
     private ProductService service;
 
     @PostMapping
-    public ResponseEntity<ProductDTO> create(@RequestBody ProductDTO dto) {
+    public ResponseEntity<ProductDTO> create(@RequestBody @Valid ProductDTO dto) {
         Product created = service.createProduct(ProductMapper.toEntity(dto));
         return ResponseEntity.status(HttpStatus.CREATED).body(ProductMapper.toDTO(created));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProductDTO> get(@PathVariable UUID id) {
-        try{
-            return ResponseEntity.ok(ProductMapper.toDTO(service.getProduct(id)));
-        } catch (ProductNotFoundException ex){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        }
+    public ResponseEntity<ProductDTO> get(@PathVariable UUID id) throws ProductNotFoundException {
+      return ResponseEntity.ok(ProductMapper.toDTO(service.getProduct(id)));
     }
 
     @GetMapping
@@ -43,22 +44,14 @@ public class ProductController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ProductDTO> update(@RequestBody ProductDTO dto) {
-        try{
-            Product updated = service.updateProduct(ProductMapper.toEntity(dto));
-            return ResponseEntity.ok(ProductMapper.toDTO(updated));
-        } catch (ProductNotFoundException ex){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        }
+    public ResponseEntity<ProductDTO> update(@RequestBody @Valid ProductDTO dto) throws ProductNotFoundException {
+        Product updated = service.updateProduct(ProductMapper.toEntity(dto));
+        return ResponseEntity.ok(ProductMapper.toDTO(updated));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> delete(@PathVariable UUID id) {
-        try{
+    public ResponseEntity<String> delete(@PathVariable UUID id) throws ProductNotFoundException {
             service.deleteProduct(id);
             return ResponseEntity.ok().body(Constants.PRODUCT_DELETED_SUCCESSFULLY.get());
-        } catch (ProductNotFoundException ex){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        }
     }
 }
